@@ -5,6 +5,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.Settings
+import androidx.core.content.ContextCompat
 
 enum class Table { GLOBAL, SECURE, SYSTEM, PROP }
 
@@ -55,7 +56,7 @@ val DEV_SETTINGS = listOf(
 
 object DevSettingsRepo {
     fun canWrite(context: Context): Boolean =
-        context.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) ==
+        ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_SECURE_SETTINGS) ==
             PackageManager.PERMISSION_GRANTED
 
     fun grantCommand(context: Context): String =

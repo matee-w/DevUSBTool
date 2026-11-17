@@ -1,13 +1,13 @@
 # DevUSB Tool
 
-แอปสำหรับช่างและนักพัฒนา ใช้ดูและแก้ Developer settings และตรวจหรือสลับ USB host/device mode บน head unit ชิป RK3399 ที่รัน Android 10
+แอปสำหรับช่างและนักพัฒนา ใช้ดูและแก้ Developer settings และตรวจหรือสลับ USB host/device mode บน head unit ชิป RK3399 (รองรับ Android 5.0 ขึ้นไป ทดสอบเป้าหมายที่ Android 10)
 
-APK พร้อมติดตั้ง: `dist/DevUSBTool-1.0-debug.apk`
+APK พร้อมติดตั้ง: `dist/DevUSBTool-1.0.1-debug.apk`
 
 ## ติดตั้ง
 
 1. Copy APK ลง USB drive แล้วเปิดด้วย file manager บน head unit (ต้องเปิด "Install unknown apps" ก่อน)
-2. หรือใช้ `adb install -r dist/DevUSBTool-1.0-debug.apk`
+2. หรือใช้ `adb install -r dist/DevUSBTool-1.0.1-debug.apk`
 
 ## เปิดสิทธิ์แก้ค่า (ทำครั้งเดียว)
 

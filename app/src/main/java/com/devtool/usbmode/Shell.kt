@@ -1,7 +1,6 @@
 package com.devtool.usbmode
 
 import java.io.File
-import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 /** Small helper for running shell commands with a timeout. Call from a background thread. */
@@ -17,15 +16,29 @@ object Shell {
             } catch (_: Exception) {
             }
         }
-        if (!process.waitFor(timeoutMs, TimeUnit.MILLISECONDS)) {
+        val exitCode = waitForExit(process, timeoutMs)
+        if (exitCode == null) {
             process.destroy()
             null
         } else {
             reader.join(500)
-            Result(process.exitValue(), out.toString().trim())
+            Result(exitCode, out.toString().trim())
         }
     } catch (_: Exception) {
         null
+    }
+
+    /** Process.waitFor(timeout) needs API 26, so poll instead. Returns null on timeout. */
+    private fun waitForExit(process: Process, timeoutMs: Long): Int? {
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (true) {
+            try {
+                return process.exitValue()
+            } catch (_: IllegalThreadStateException) {
+                if (System.currentTimeMillis() >= deadline) return null
+                Thread.sleep(20)
+            }
+        }
     }
 
     fun getprop(name: String): String = run("getprop", name)?.output.orEmpty()

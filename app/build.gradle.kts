@@ -9,10 +9,19 @@ android {
 
     defaultConfig {
         applicationId = "com.devtool.usbmode"
-        minSdk = 29          // Android 10
+        // Many head units report "Android 10" but actually run 8.1/9, so keep minSdk low.
+        minSdk = 21
         targetSdk = 29       // match the head unit (Android 10)
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
+    }
+
+    signingConfigs {
+        getByName("debug") {
+            // Some head-unit installers only accept v1 (JAR) signatures.
+            enableV1Signing = true
+            enableV2Signing = true
+        }
     }
 
     buildFeatures { compose = true }

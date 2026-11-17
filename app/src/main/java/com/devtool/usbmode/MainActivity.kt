@@ -283,7 +283,7 @@ private fun SectionTitle(text: String) {
 private fun toast(context: Context, msg: String) = Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
 
 private fun copy(context: Context, label: String, text: String) {
-    val cm = context.getSystemService(ClipboardManager::class.java)
+    val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     cm.setPrimaryClip(ClipData.newPlainText(label, text))
     toast(context, "Copied")
 }
