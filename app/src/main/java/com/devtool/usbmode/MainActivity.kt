@@ -1,5 +1,6 @@
 package com.devtool.usbmode
 
+import android.Manifest
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -7,7 +8,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -101,20 +104,9 @@ fun AppScreen() {
                     }
                 })
                 Spacer(Modifier.height(12.dp))
-                Card(Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(16.dp)) {
-                        SectionTitle("Diagnostics")
-                        Text("Copies device info, readable USB paths and matched vendor apps to the clipboard.",
-                            style = MaterialTheme.typography.bodySmall)
-                        Spacer(Modifier.height(8.dp))
-                        Button(onClick = {
-                            scope.launch {
-                                val text = withContext(Dispatchers.IO) { UsbModeRepo.diagnostics(context, usb, values) }
-                                copy(context, "DevUSB diagnostics", text)
-                            }
-                        }) { Text("Copy diagnostics") }
-                    }
-                }
+                DiagnosticsCard(buildText = {
+                    withContext(Dispatchers.IO) { UsbModeRepo.diagnostics(context, usb, values) }
+                })
             }
         }
     }
@@ -269,6 +261,61 @@ private fun UsbCard(usb: UsbStatus?, onSwitch: (UsbNode, UsbRole) -> Unit) {
                         },
                         fontFamily = FontFamily.Monospace, fontSize = 11.sp, color = MaterialTheme.colorScheme.outline,
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DiagnosticsCard(buildText: suspend () -> String) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var savedTo by remember { mutableStateOf<String?>(null) }
+
+    fun save() {
+        scope.launch {
+            val text = buildText()
+            val result = withContext(Dispatchers.IO) {
+                runCatching { Export.saveToFile(context, text) }
+            }
+            result
+                .onSuccess { savedTo = it; toast(context, "Saved to $it") }
+                .onFailure { toast(context, "Save failed: ${it.message}") }
+        }
+    }
+
+    // On Android 9 and older, ask for storage permission first. If refused, save() falls back to the app folder.
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { save() }
+
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            SectionTitle("Diagnostics")
+            Text("Device info, USB paths and matched vendor apps. Send this to whoever is tuning the app.",
+                style = MaterialTheme.typography.bodySmall)
+            Spacer(Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = {
+                    scope.launch { copy(context, "DevUSB diagnostics", buildText()) }
+                }, Modifier.weight(1f)) { Text("Copy") }
+                Button(onClick = {
+                    scope.launch {
+                        if (!Export.share(context, buildText())) toast(context, "No app available to share with")
+                    }
+                }, Modifier.weight(1f)) { Text("Share") }
+                Button(onClick = {
+                    if (Export.needsStoragePermission(context)) {
+                        permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    } else {
+                        save()
+                    }
+                }, Modifier.weight(1f)) { Text("Save to file") }
+            }
+            savedTo?.let {
+                Spacer(Modifier.height(8.dp))
+                Text("Saved:", style = MaterialTheme.typography.labelMedium)
+                SelectionContainer {
+                    Text(it, fontFamily = FontFamily.Monospace, fontSize = 12.sp)
                 }
             }
         }

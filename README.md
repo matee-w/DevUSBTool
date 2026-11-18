@@ -2,12 +2,12 @@
 
 แอปสำหรับช่างและนักพัฒนา ใช้ดูและแก้ Developer settings และตรวจหรือสลับ USB host/device mode บน head unit ชิป RK3399 (รองรับ Android 5.0 ขึ้นไป ออกแบบสำหรับ Android 10)
 
-APK พร้อมติดตั้ง: `dist/DevUSBTool-1.0.1-debug.apk`
+APK พร้อมติดตั้ง: `dist/DevUSBTool-1.0.2-debug.apk`
 
 ## ติดตั้ง
 
 1. Copy APK ลง USB drive แล้วเปิดด้วย file manager บน head unit (ต้องเปิด "Install unknown apps" ก่อน)
-2. หรือใช้ `adb install -r dist/DevUSBTool-1.0.1-debug.apk`
+2. หรือใช้ `adb install -r dist/DevUSBTool-1.0.2-debug.apk`
 
 ## เปิดสิทธิ์แก้ค่า (ทำครั้งเดียว)
 
@@ -42,7 +42,15 @@ APK พร้อมติดตั้ง: `dist/DevUSBTool-1.0.1-debug.apk`
 - `/sys/class/typec/port{0,1}/data_role`
 - ไฟล์ `otg_mode` อื่นๆ ที่พบใต้ `/sys/devices/platform`
 
-ถ้าแอปหา path ไม่เจอหรือ role ผิด ให้กด **Copy diagnostics** แล้วส่งข้อความนั้นกลับมาให้ปรับ
+## ส่ง diagnostics
+
+การ์ด Diagnostics (คอลัมน์ขวาล่าง) มี 3 ปุ่ม:
+
+- **Copy**: copy ข้อความไป clipboard
+- **Share**: ส่งผ่าน LINE, Gmail หรือแอปอื่นที่มีบนเครื่อง
+- **Save to file**: บันทึกเป็น `devusb-diagnostics-<วันเวลา>.txt` ใน `Download/` (Android 9 ลงไปจะขอสิทธิ์ storage ก่อน ถ้าไม่อนุญาตจะบันทึกไว้ที่ `Android/data/com.devtool.usbmode/files/`) แอปจะแสดง path ที่บันทึกไว้ copy ไฟล์ลง USB drive ได้ด้วย file manager
+
+ถ้าแอปหา path ไม่เจอหรือ role ผิด ให้ส่ง diagnostics กลับมาให้ปรับ
 
 ## Build ใหม่
 
